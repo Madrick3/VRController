@@ -47,7 +47,7 @@
 
 
             //Drift changes
-            
+            /*
             if(abs(ax) < 0.05){
               ax = 0;
             }
@@ -57,7 +57,7 @@
             if(abs(az) < 0.05){
               az = 0;
             }
-            
+            */
             
 
             // Normalise magnetometer measurement
@@ -119,7 +119,7 @@
             */
             
   
-            /*
+            
             if(abs(qDot1) < 0.10){
               qDot1 = 0;
             }
@@ -132,7 +132,7 @@
             if(abs(qDot4) < 0.10){
               qDot4 = 0;
             }
-            */
+            
             
             // Integrate to yield quaternion
             q1 += qDot1 * deltat;
