@@ -45,6 +45,21 @@
             ay *= norm;
             az *= norm;
 
+
+            //Drift changes
+            
+            if(abs(ax) < 0.05){
+              ax = 0;
+            }
+            if(abs(ay) < 0.05){
+              ay = 0;
+            }
+            if(abs(az) < 0.05){
+              az = 0;
+            }
+            
+            
+
             // Normalise magnetometer measurement
             norm = sqrtf(mx * mx + my * my + mz * mz);
             if (norm == 0.0f) return; // handle NaN
@@ -52,6 +67,18 @@
             mx *= norm;
             my *= norm;
             mz *= norm;
+
+            //Drift changes
+            /*
+            if(mx < norm*0.05){
+              mx = 0;
+            }
+            if(my < norm*0.05){
+              my = 0;
+            }
+            if(mz < norm*0.05){
+              mz = 0;
+            }*/
 
             // Reference direction of Earth's magnetic field
             _2q1mx = 2.0f * q1 * mx;
@@ -83,11 +110,36 @@
             qDot3 = 0.5f * (q1 * gy - q2 * gz + q4 * gx) - beta * s3;
             qDot4 = 0.5f * (q1 * gz + q2 * gy - q3 * gx) - beta * s4;
 
+            /*MAY WANT TO GATE HERE*/
+           /*
+            * Serial.println( qDot1);
+            Serial.println( qDot2);
+            Serial.println(qDot3);
+            Serial.println( qDot4);
+            */
+            
+  
+            /*
+            if(abs(qDot1) < 0.10){
+              qDot1 = 0;
+            }
+            if(abs(qDot2) < 0.10){
+              qDot2 = 0;
+            }
+            if(abs(qDot3) < 0.10){
+              qDot3 = 0;
+            }
+            if(abs(qDot4) < 0.10){
+              qDot4 = 0;
+            }
+            */
+            
             // Integrate to yield quaternion
             q1 += qDot1 * deltat;
             q2 += qDot2 * deltat;
             q3 += qDot3 * deltat;
             q4 += qDot4 * deltat;
+            
             norm = sqrtf(q1 * q1 + q2 * q2 + q3 * q3 + q4 * q4);    // normalise quaternion
             norm = 1.0f/norm;
             q[0] = q1 * norm;
