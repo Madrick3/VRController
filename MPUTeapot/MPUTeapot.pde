@@ -69,7 +69,7 @@ void setup() {
     
     // get a specific serial port (use EITHER this OR the first-available code above)
     //String portName = "COM4";
-    String portName = Serial.list()[0]; // may need to change it if your com port is at [0]
+    String portName = Serial.list()[1]; // may need to change it if your com port is at [0]
     println(portName);
     
     // open the serial port
@@ -93,6 +93,14 @@ void draw() {
     
     // translate everything to the middle of the viewport
     pushMatrix();
+    beginShape(QUADS);
+    fill(255,0,255);
+    vertex(101, 1, 1); vertex(101, 101, 1); vertex(  101, 101, 101); vertex(101, 1, 101);
+    vertex(1, 1, 0); vertex(101, 1, 0); vertex(  101, 101, 0); vertex(  1, 101, 0);
+    vertex(1, 101,  1); vertex(101, 101, 1); vertex(101, 101, 101); vertex(1, 101, 101);
+    vertex(1,1,101); vertex(1,101,101); vertex(101,101,101); vertex(101,1,101);
+    endShape();
+    
     translate(width / 2, height / 2);
 
     // 3-step rotation from yaw/pitch/roll angles (gimbal lock!)
@@ -107,6 +115,11 @@ void draw() {
     // and InvenSense DMP)
     float[] axis = quat.toAxisAngle();
     rotate(axis[0], -axis[1], axis[3], axis[2]);
+    
+    /*for(float a: axis){
+      System.out.println(a);
+    }
+    */
 
     // draw main body in red
     fill(255, 0, 0, 200);
