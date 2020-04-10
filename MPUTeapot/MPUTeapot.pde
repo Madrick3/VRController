@@ -116,10 +116,16 @@ void draw() {
     float[] axis = quat.toAxisAngle();
     rotate(axis[0], -axis[1], axis[3], axis[2]);
     
-    /*for(float a: axis){
-      System.out.println(a);
+   /*for(int i=0; i<4; i++){
+      //System.out.println(i + ": " + axis[i]);
+     
     }
-    */
+    
+    System.out.println("ROLL: " + -180*axis[1]);
+    System.out.println("PITCH: " + 90*axis[2]);
+    System.out.println("YAW: " + 180*axis[3]);
+  */
+    
 
     // draw main body in red
     fill(255, 0, 0, 200);
@@ -192,7 +198,7 @@ void serialEvent(Serial port) {
                     // set our toxilibs quaternion to new data
                     quat.set(q[0], q[1], q[2], q[3]);
 
-                    /*
+                    
                     // below calculations unnecessary for orientation only using toxilibs
                     
                     // calculate gravity vector
@@ -214,7 +220,7 @@ void serialEvent(Serial port) {
                     //println("q:\t" + round(q[0]*100.0f)/100.0f + "\t" + round(q[1]*100.0f)/100.0f + "\t" + round(q[2]*100.0f)/100.0f + "\t" + round(q[3]*100.0f)/100.0f);
                     //println("euler:\t" + euler[0]*180.0f/PI + "\t" + euler[1]*180.0f/PI + "\t" + euler[2]*180.0f/PI);
                     //println("ypr:\t" + ypr[0]*180.0f/PI + "\t" + ypr[1]*180.0f/PI + "\t" + ypr[2]*180.0f/PI);
-                    */
+                    
                 }
             }
         }
@@ -270,4 +276,16 @@ void drawCylinder(float topRadius, float bottomRadius, float tall, int sides) {
         }
         endShape();
     }
+}
+
+void quaternionToYawPitchRoll(float [] q, float [] ypr) {
+  float gx, gy, gz; // estimated gravity direction
+  
+  gx = 2 * (q[1]*q[3] - q[0]*q[2]);
+  gy = 2 * (q[0]*q[1] + q[2]*q[3]);
+  gz = q[0]*q[0] - q[1]*q[1] - q[2]*q[2] + q[3]*q[3];
+  
+  ypr[0] = atan2(2 * q[1] * q[2] - 2 * q[0] * q[3], 2 * q[0]*q[0] + 2 * q[1] * q[1] - 1);
+  ypr[1] = atan2(gx, sqrt(gy*gy + gz*gz));
+  ypr[2] = atan2(gy, sqrt(gx*gx + gz*gz));
 }
