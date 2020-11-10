@@ -6,6 +6,12 @@ This is a Python script for plotting in real time data of the MPU9250 which are 
 @date : 30/04/2017
 """
 
+"""
+File adapted from Mohammed's code - watermark above
+    For all three people who ever see this, his code was really helpful in handling the data processing.
+    pyqt seems pretty effective - note to self
+"""
+
 
 import serial
 import time
@@ -189,36 +195,40 @@ def update():
     if(not(pause)):
         acc = []
         gyr = []
-
+        #Begin Patrick Changes - reinterpret serial read
         #print(line)
         line = line.split("\t")
         #for each line I collect data like this "acc_x acc_y acc_z gyr_x ... mag_z"
         tab = [float(i) for i in line]
-        acc = tab[0:3] #read and store the 3 values of acc according to how you send your data from arduino
-        gyr = tab[3:6] #read the 3 values of gyr
-        mag = tab[6:9]
+        acc = tab[0:3] #read acceleration from serial
+        gyr = tab[3:6] #gyroscope
+        mag = tab[6:9] #magnetometer
 
-            #I dont care about the magnetometer very much so i am replacing it with displacement Code
+        #Present displacement approximation instead of magnetometer data in final graphs
+        #integrate  and store value in magx
         dt = tps[-1] - tps[-2]
         for x in range(3):
             v[x] = 1/2 * (acc[x] - data1[x,-1]) + v[x] * dt
             if(abs(v[x]) < 0.1):
                 v[x] = 0
-            mag[x] = 1/4 * (acc[x] - data1[x,-1]) * dt**2 + v[x] * dt
+            mag[x] = 1/4 * (acc[x] - data1[x,-1]) * dt**2 + v[x] * dt #integration
             if(mag[x] > 50):
                 mag[x] = 0
             #print("dx[",x,"] = ", mag[x])
 
         tps[:-1] = tps[1:]
         tps[-1] = time.time()-start
-        data1[:,:-1] = data1[:,1:]  # shift data in the array one sample left
-                    # (see also: np.roll)
+        
+        #shift data one piece left
+        data1[:,:-1] = data1[:,1:] 
         data2[:,:-1] = data2[:,1:]
         data3[:,:-1] = data3[:,1:]
-
+        #enter new value
         data1[:,-1] = acc
         data2[:,-1] = gyr
         data3[:,-1] = mag
+
+        #update data streams
         curve11.setData(data1[0])
         curve12.setData(data2[0])
         curve13.setData(data3[0])
@@ -230,7 +240,7 @@ def update():
         curve31.setData(data1[2])
         curve32.setData(data2[2])
         curve33.setData(data3[2])
-
+    #end important Patrick changes
 
 timer = pg.QtCore.QTimer()
 timer.timeout.connect(update)

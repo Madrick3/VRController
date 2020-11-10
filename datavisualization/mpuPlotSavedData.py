@@ -6,6 +6,11 @@ This is a Python script for visualizing saved data
 @date : 30/04/2017
 """
 
+"""
+Adapted with slight changes for VR Controller project by Patrick Flaherty
+Original content was useful for data processing
+"""
+
 
 
 
@@ -22,6 +27,7 @@ def LoadData(file,delimiter):
 
 def PlotData(tps,acc,gyr,mag):
     # Create figure with 3x3 sub-plots.
+    # begin Patrick Changes - order and definition of each graph for usecase
     plt.subplot(331),plt.plot(tps,acc[0]),plt.title("acc[x]"),plt.xlabel("time[s]"),plt.ylabel("mg")
     plt.subplot(332),plt.plot(tps,gyr[0]),plt.title("gyr[x]"),plt.xlabel("time[s]"),plt.ylabel("deg/s")
     plt.subplot(333),plt.plot(tps,mag[0]),plt.title("mag[x]"),plt.xlabel("time[s]"),plt.ylabel("mG")
@@ -33,6 +39,7 @@ def PlotData(tps,acc,gyr,mag):
     plt.subplot(339),plt.plot(tps,mag[2]),plt.title("mag[z]"),plt.xlabel("time[s]"),plt.ylabel("mG")
     #plt.xticks([])
     #plt.yticks([])
+    #end patrick changes
     plt.subplots_adjust(hspace = 0.5,wspace=0.3)
     plt.show()
 

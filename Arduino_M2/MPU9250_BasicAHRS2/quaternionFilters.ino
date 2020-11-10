@@ -5,6 +5,10 @@
 // device orientation -- which can be converted to yaw, pitch, and roll. Useful for stabilizing quadcopters, etc.
 // The performance of the orientation filter is at least as good as conventional Kalman-based filtering algorithms
 // but is much less computationally intensive---it can be performed on a 3.3 V Pro Mini operating at 8 MHz!
+
+// remember to reread documentation from x-io Patrick before you change this!
+  //in future demos, consider longform math lecture to put everyone to sleep except Gao.
+// steps for the future - reimplement this for faster runtime on python device driver or steamVr driver - incorporate camera verification for orientation or use leapvr
         void MadgwickQuaternionUpdate(float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz)
         {
             float q1 = q[0], q2 = q[1], q3 = q[2], q4 = q[3];   // short name local variable for readability
@@ -39,15 +43,15 @@
 
             // Normalise accelerometer measurement
             norm = sqrtf(ax * ax + ay * ay + az * az);
-            if (norm == 0.0f) return; // handle NaN
+            if (norm == 0.0f) return; // handle NaN //FIND A BETTER WAY TO DO THIS THIS MAY LEAD TO FAULTS
             norm = 1.0f/norm;
             ax *= norm;
             ay *= norm;
             az *= norm;
 
 
-            //Drift changes
-            /*
+            //Drift changes - removes tiny values - may be too sensitive
+            
             if(abs(ax) < 0.05){
               ax = 0;
             }
@@ -57,7 +61,7 @@
             if(abs(az) < 0.05){
               az = 0;
             }
-            */
+            
             
 
             // Normalise magnetometer measurement
@@ -68,8 +72,8 @@
             my *= norm;
             mz *= norm;
 
-            //Drift changes
-            /*
+            //Drift changes - oncomment to handle highpass filtering
+            
             if(mx < norm*0.05){
               mx = 0;
             }
@@ -78,9 +82,10 @@
             }
             if(mz < norm*0.05){
               mz = 0;
-            }*/
+            }
 
-            // Reference direction of Earth's magnetic field
+            // Reference direction of Earth's magnetic field 
+            // This part was found online - needs a citation (x-io.co.uk)
             _2q1mx = 2.0f * q1 * mx;
             _2q1my = 2.0f * q1 * my;
             _2q1mz = 2.0f * q1 * mz;
@@ -93,6 +98,8 @@
             _4bz = 2.0f * _2bz;
 
             // Gradient decent algorithm corrective step
+            //There has to be a better way to do this, so many calculations every time
+            //Some parts are duplicate calculations which include multiplcation !!!!!
             s1 = -_2q3 * (2.0f * q2q4 - _2q1q3 - ax) + _2q2 * (2.0f * q1q2 + _2q3q4 - ay) - _2bz * q3 * (_2bx * (0.5f - q3q3 - q4q4) + _2bz * (q2q4 - q1q3) - mx) + (-_2bx * q4 + _2bz * q2) * (_2bx * (q2q3 - q1q4) + _2bz * (q1q2 + q3q4) - my) + _2bx * q3 * (_2bx * (q1q3 + q2q4) + _2bz * (0.5f - q2q2 - q3q3) - mz);
             s2 = _2q4 * (2.0f * q2q4 - _2q1q3 - ax) + _2q1 * (2.0f * q1q2 + _2q3q4 - ay) - 4.0f * q2 * (1.0f - 2.0f * q2q2 - 2.0f * q3q3 - az) + _2bz * q4 * (_2bx * (0.5f - q3q3 - q4q4) + _2bz * (q2q4 - q1q3) - mx) + (_2bx * q3 + _2bz * q1) * (_2bx * (q2q3 - q1q4) + _2bz * (q1q2 + q3q4) - my) + (_2bx * q4 - _4bz * q2) * (_2bx * (q1q3 + q2q4) + _2bz * (0.5f - q2q2 - q3q3) - mz);
             s3 = -_2q1 * (2.0f * q2q4 - _2q1q3 - ax) + _2q4 * (2.0f * q1q2 + _2q3q4 - ay) - 4.0f * q3 * (1.0f - 2.0f * q2q2 - 2.0f * q3q3 - az) + (-_4bx * q3 - _2bz * q1) * (_2bx * (0.5f - q3q3 - q4q4) + _2bz * (q2q4 - q1q3) - mx) + (_2bx * q2 + _2bz * q4) * (_2bx * (q2q3 - q1q4) + _2bz * (q1q2 + q3q4) - my) + (_2bx * q1 - _4bz * q3) * (_2bx * (q1q3 + q2q4) + _2bz * (0.5f - q2q2 - q3q3) - mz);
@@ -119,7 +126,7 @@
             */
             
   
-            
+            //Filter small values of change
             if(abs(qDot1) < 0.10){
               qDot1 = 0;
             }
@@ -134,7 +141,7 @@
             }
             
             
-            // Integrate to yield quaternion
+            // Integrate to quaternion
             q1 += qDot1 * deltat;
             q2 += qDot2 * deltat;
             q3 += qDot3 * deltat;
@@ -152,7 +159,7 @@
   
   
  // Similar to Madgwick scheme but uses proportional and integral filtering on the error between estimated reference vectors and
- // measured ones. 
+ // measured ones. - use for comparison in demos
             void MahonyQuaternionUpdate(float ax, float ay, float az, float gx, float gy, float gz, float mx, float my, float mz)
         {
             float q1 = q[0], q2 = q[1], q3 = q[2], q4 = q[3];   // short name local variable for readability
